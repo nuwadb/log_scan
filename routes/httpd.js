@@ -1,4 +1,4 @@
-var lvdb= require('lvdb_client');
+var lvdb= require('lvdb_node');
 
 //var connection=new(lvdb.Connection)();
 var connection=new lvdb.Connection();
