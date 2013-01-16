@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 12px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke:#404040;
+  stroke-width:1px;
+  shape-rendering: crispEdges;
+}
+
+.y{  fill:#505050; }
+ 
+.x1{ fill:#0000ff; }
+.x2{ fill:#ff0000; }
+
+.x1.axis path,.y1.axis line{stroke:#0000ff;}
+.x2.axis path,.y2.axis line{stroke:#ff0000;}
+
+.bar {
+  fill: steelblue;
+}
+
+.bar2 {
+  fill: #ff1100;
+}
+
+.summary {
+  fill: #303030;
+  font-size:15px;
+  font-style:italic;
+}
+
+.link:hover{
+  fill:#0000ff;
+}
+ 
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var threshold = 100;
+var margin = {top: 80, right: 100, bottom: 100, left: 120,referer_left:-30},
+    width = 1200 - margin.left - margin.right,
+    height = 700 - margin.top - margin.bottom;
+
+
+var yScale = d3.scale.ordinal()
+    .rangeRoundBands([0, height], .1);
+
+var xScale = d3.scale.linear()
+    .range([0,width])
+    .clamp(true);
+
+var xAxis = d3.svg.axis()
+    .scale(xScale).ticks(4) 
+    .orient("top");
+
+var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient("left");
+
+var xAxis2 = d3.svg.axis()
+    .scale(xScale)
+    .orient("bottom");
+
+
+
+/*
+{"total_entry":294,"total_hits":37341,"total_bytes":815677648
+  "rows":[
+           {"bytes":677328420,"count":33913,"referer":"nezumi-lab.org"},
+           {"bytes":18820459,"count":639,"referer":"www.google.com"}
+         ]
+}
+*/
+//d3.json("referer_top20.json", function(input_data) {
+d3.json("/lvdb/httpd/order_state?pId=25&table=referer_state&sort=count", function(input_data) {	
+  var data=[]
+  var total_entry=input_data["total_entry"];
+  var total_hits=input_data["total_hits"];
+  var total_bytes=input_data["total_bytes"];
+  var rows=input_data["rows"]; 
+
+  for(var i=0;i<rows.length;i++){
+       data.push({
+  	        index: i,
+		bytes: rows[i]["bytes"],
+		count: rows[i]["count"],
+		value: rows[i]["referer"]
+	}); 
+  }
+
+ var maxCount = d3.max(data,function(d){return d.count;}),
+     minCount = d3.min(data,function(d){return d.count;}),
+     logCount = maxCount/minCount>=threshold?true:false;
+
+ var maxBytes = d3.max(data,function(d){return d.bytes;}),
+     minBytes = d3.min(data,function(d){return d.bytes;}),  
+     logBytes = maxBytes/minBytes>=threshold?true:false;
+
+
+ //set up domain
+ yScale.domain(data.map(function(d) { return d.index; })); 
+ xScale.domain([0, d3.max(data, function(d) { return logCount?log10Value(d.count):d.count; })]);
+ 
+ var refererMaxLength = d3.max(data,function(d){return d.value.length;});
+ //console.log(refererMaxLength);
+
+ margin.left = refererMaxLength*10 - margin.referer_left;
+ //console.log(refererMaxLength+"  "+margin.left);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+  //y-axis
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text") 
+      .attr("x", margin.referer_left)
+      .attr("y", -5)
+      .attr("dy", ".71em")
+      .style("fill","#007700")
+      .style("font-size","14px")
+      .style("text-anchor", "end")
+      .text("Referers");
+
+
+  //hits bar
+  svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("y", function(d) { return yScale(d.index); }) 
+      .attr("height", yScale.rangeBand()/2)
+
+      .attr("x",0)
+      .attr("width", function(d) { return xScale(logCount?log10Value(d.count):d.count); })
+      .append("svg:title")
+      .text(function(d) { return "[Hits:"+d.count+"]"; });
+
+ //top x-axis
+ svg.append("g")
+      .attr("class", "x1 axis")
+      .call(xAxis)  
+    .append("text") 
+      .attr("transform", "translate("+width/2+",-50)")  
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .style("font-size","14px")
+      .text(logCount?"log(Hits)":"Hits");
+  
+  //referers
+  svg.selectAll("text.referer")
+    .data(data)
+    .enter()
+    .append("a")  
+    .attr("xlink:href",function (d){ return "http://"+d.value;})
+    .attr("target", "_blank") 
+    .append("text")
+    .attr("class","link")
+    .attr("x", margin.referer_left)
+    .attr("y", function(d, i){ return yScale(d.index); } )
+    .attr("dy", "1.2em")
+    .attr("text-anchor", "end")
+    //.style("fill","#00ff00")
+    .text(function(d){return d.value;});
+  
+
+
+  //reset x domain for BYTES
+  xScale.domain([0, d3.max(data, function(d) { return logBytes?log10Value(d.bytes):d.bytes; })]);
+
+  //bytes bar
+  svg.selectAll(".bar2")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", "bar2")
+      .attr("y", function(d) { return yScale(d.index); })
+      .attr("height", yScale.rangeBand()/2)
+      .attr("x", 0)
+      .attr("width", function(d) { return xScale(logBytes?log10Value(d.bytes):d.bytes);})
+      .attr("transform", function(d) { return "translate(0,"+yScale.rangeBand()/2+")" })
+      .append("svg:title")
+      .text(function(d) { return "[Bytes:"+d.bytes+"]"; });
+
+ //bottom x-axis
+ svg.append("g")
+      .attr("class", "x2 axis")
+      .call(xAxis2)
+      .attr("transform", "translate(0,"+ height +")")
+
+    .append("text") 
+      .attr("transform", "translate("+width/2+",20)")  
+      .attr("y", 6)
+      .attr("dy", "0.71em") 
+      .style("font-size","14px")
+      .text(logBytes?"log(Bytes)":"Bytes");
+
+ //summary 
+ svg.append("text")
+   .attr("class","summary")
+   .attr("transform", "translate(0,"+ (height+70)+")") 
+   .text("Total Entry: "+total_entry+"  Total Hits: "+total_hits+"  Total Bytes: "+total_bytes);
+ 
+});
+
+
+function log10Value(val){
+	return Math.log(val) / Math.LN10;
+}
+</script>
