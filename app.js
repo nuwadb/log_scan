@@ -36,7 +36,12 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', routes.index);
+//app.get('/', routes.index);
+app.get('/', function (req, res) {
+	res.sendfile(__dirname + '/public/upload.html');
+});
+
+
 app.get('/lvdb/httpd/:dbCmd', httpd.dbCmd);
 
 var lvdb_upload=require('./routes/upload.js');
