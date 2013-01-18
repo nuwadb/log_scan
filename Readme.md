@@ -28,3 +28,5 @@ GET "/lvdb/httpd/*"   =>   DB query related API. For restful service
 GET "/analysis?pId="  =>   Analysis entrance page.  Right now simply display a topK chart.
 
 
+Demo:
+http://demo2.aws.nuwadb.com:3000/upload.html
