@@ -1,7 +1,7 @@
 var lvdb= require('lvdb_node');
 
 //var connection=new(lvdb.Connection)();
-var connection=new lvdb.Connection();
+var connection=new lvdb.Connection({port:9000});
 
 var time_state_handle=function(req,res){
 	  var query=req.query;

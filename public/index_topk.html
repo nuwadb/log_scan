@@ -81,7 +81,7 @@ var xAxis2 = d3.svg.axis()
 }
 */
 //d3.json("referer_top20.json", function(input_data) {
-d3.json("/lvdb/httpd/order_state?pId=25&table=referer_state&sort=count", function(input_data) {	
+d3.json("/lvdb/httpd/order_state?pId={{partitionId}}&table=referer_state&sort=count", function(input_data) {	
   var data=[]
   var total_entry=input_data["total_entry"];
   var total_hits=input_data["total_hits"];

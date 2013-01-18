@@ -8,6 +8,7 @@ var express = require('express')
   , user = require('./routes/user')
   , http = require('http')
   , path = require('path')
+  , fs = require('fs') 
 //  , lvdb= require('lvdb_client')
   , httpd= require('./routes/httpd.js');
 
@@ -41,6 +42,15 @@ app.get('/', function (req, res) {
 	res.sendfile(__dirname + '/public/upload.html');
 });
 
+var mustache = require('mustache'); 
+app.get('/analysis', function (req, res) {
+	var query=req.query;
+	var pId=query.pId;
+	var m_template=fs.readFileSync(__dirname + '/public/index_topk.html', "utf8");
+	var html = mustache.to_html(m_template, {partitionId:pId}); // replace all of the data
+	res.send(html); // send to client
+	
+});
 
 app.get('/lvdb/httpd/:dbCmd', httpd.dbCmd);
 
