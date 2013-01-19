@@ -1,4 +1,11 @@
-#!/bin/sh
+#!/bin/bash
+#
+# log_scan web app for log scan service (https://github.com/nuwadb/log_scan.git)
+#
+# chkconfig: - 90 10
+# description: Schedule file scan jobs.
+
+
 . /etc/rc.d/init.d/functions
 
 USER="lvdb"
