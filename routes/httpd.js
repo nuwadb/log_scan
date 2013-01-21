@@ -1,7 +1,7 @@
 var lvdb= require('lvdb_node');
 
 //var connection=new(lvdb.Connection)();
-var connection=new lvdb.Connection({port:9000});
+var connection=new lvdb.Connection({port:9001});
 
 var time_state_handle=function(req,res){
 	  var query=req.query;
@@ -22,6 +22,27 @@ var time_state_handle=function(req,res){
 	
 	
 };
+
+var time_log_handle=function(req,res){
+    var query=req.query;
+    var pId=query.pId;
+    //var tableName=query.table;
+    if(!pId){
+        res.send(500, { error: "partitionId missing!" });
+        return;
+    }
+    var sql="select ts,log_id.httpd_log.line from time_log limit 100";
+    connection.sql(pId,sql,function(err,data){
+        if(err){
+            res.send(500, { error: err });
+        } else{
+            res.send(data);
+        }
+    });
+
+
+};
+
 //table=referer_state&sort=count&parId=25
 var order_state_handle=function(req,res){
 	  var query=req.query;
@@ -67,6 +88,7 @@ exports.dbCmd = function(req, res){
   var cmd=req.params.dbCmd;
   //console.log(cmd);
   if(cmd=="time_state") return time_state_handle(req,res);
+  if(cmd=="time_log") return time_log_handle(req,res);
   if(cmd=="order_state") return order_state_handle(req,res);
 
   res.send("respond with a resource " + req.params.dbCmd + " " + query.pId);

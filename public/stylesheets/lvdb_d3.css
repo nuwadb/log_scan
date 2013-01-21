@@ -1,0 +1,29 @@
+
+body {
+font: 11px sans-serif;
+}
+
+.axis path,
+
+.axis line {
+fill: none;
+stroke:#404040;
+stroke-width:1px;
+shape-rendering: crispEdges;
+}
+
+.y1{ fill:#0000ff; }
+.y2{ fill:#ff0000; }
+.y1.axis path,.y1.axis line{stroke:#0000ff;}
+.y2.axis path,.y2.axis line{stroke:#ff0000;}
+
+.bar {
+fill: steelblue;
+}
+.bar2 {
+fill: #ff1100;
+}
+
+.label1 {
+fill: white;
+}
