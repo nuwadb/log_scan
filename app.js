@@ -10,7 +10,8 @@ var express = require('express')
   , path = require('path')
   , fs = require('fs') 
 //  , lvdb= require('lvdb_client')
-  , httpd= require('./routes/httpd.js');
+  , httpd= require('./routes/httpd.js')
+    , db = require('./routes/mgm_mysql.js');
 
 var app = express();
 
@@ -42,6 +43,9 @@ app.get('/', function (req, res) {
 	res.sendfile(__dirname + '/public/upload.html');
 });
 
+app.get('/mgm/db/:mgmCmd', db.mgmCmd);
+
+
 var mustache = require('mustache'); 
 app.get('/analysis', function (req, res) {
 	var query=req.query;
@@ -52,11 +56,14 @@ app.get('/analysis', function (req, res) {
 	
 });
 
+
+
 app.get('/lvdb/httpd/:dbCmd', httpd.dbCmd);
 
 var lvdb_upload=require('./routes/upload.js');
 app.post('/upload', lvdb_upload.upload);
 app.get('/upload/status', lvdb_upload.status);
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

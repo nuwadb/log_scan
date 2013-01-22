@@ -12,6 +12,16 @@ stroke-width:1px;
 shape-rendering: crispEdges;
 }
 
+
+.y{  fill:#505050; }
+
+.x1{ fill:#0000ff; }
+.x2{ fill:#ff0000; }
+
+.x1.axis path,.y1.axis line{stroke:#0000ff;}
+.x2.axis path,.y2.axis line{stroke:#ff0000;}
+
+
 .y1{ fill:#0000ff; }
 .y2{ fill:#ff0000; }
 .y1.axis path,.y1.axis line{stroke:#0000ff;}
@@ -26,4 +36,14 @@ fill: #ff1100;
 
 .label1 {
 fill: white;
+}
+
+.summary {
+  fill: #303030;
+  font-size:15px;
+  font-style:italic;
+}
+
+.link:hover{
+  fill:#0000ff;
 }
