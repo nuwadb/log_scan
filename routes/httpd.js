@@ -26,12 +26,20 @@ var time_state_handle=function(req,res){
 var time_log_handle=function(req,res){
     var query=req.query;
     var pId=query.pId;
+    var time_start=query.time_start;
+    var time_end=query.time_end;
     //var tableName=query.table;
     if(!pId){
         res.send(500, { error: "partitionId missing!" });
         return;
     }
     var sql="select ts,log_id.httpd_log.line from time_log limit 100";
+    if(time_start){
+      sql = 'select ts,log_id.httpd_log.line from time_log  where ts >= ' + time_start + ' and ts <= ' + time_end + ' limit 100';
+//        sql="select ts,log_id.httpd_log.line from time_log limit 1000,100";
+    }
+    console.log(sql);
+
     connection.sql(pId,sql,function(err,data){
         if(err){
             res.send(500, { error: err });
@@ -86,7 +94,7 @@ var order_state_handle=function(req,res){
 
 exports.dbCmd = function(req, res){
   var cmd=req.params.dbCmd;
-  //console.log(cmd);
+  console.log(cmd);
   if(cmd=="time_state") return time_state_handle(req,res);
   if(cmd=="time_log") return time_log_handle(req,res);
   if(cmd=="order_state") return order_state_handle(req,res);

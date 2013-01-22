@@ -20,7 +20,8 @@ function SearchCtrl($scope,$http){
   // [{"id":"1","name":"name 1","description":"description 1","field3":"field3 1","field4":"field4 1","field5 ":"field5 1"}]
     $http.get('lvdb/httpd/time_state?pId=60').success(function(data) {
         $scope.time_states = data;
-        lvdb_d3.time_chart(data,'#d3_svg');
+        lvdb_d3.time_chart(data,'#d3_svg',{click:$scope.bar_click});
+
     });
 
     $http.get('lvdb/httpd/time_log?pId=60').success(function(data) {
@@ -29,11 +30,20 @@ function SearchCtrl($scope,$http){
         //lvdb_d3.time_chart(data,'#d3_svg');
     });
 
-
+    $scope.bar_click=function(d,i){
+        $http.get('lvdb/httpd/time_log?pId=60&time_start=' + d.ts + '&time_end=' + (d.ts+3600*24-1)).success(function(data) {
+            console.log("got data from selected char");
+            $scope.filteredItems = data;
+            $scope.groupToPages();
+            //lvdb_d3.time_chart(data,'#d3_svg');
+        });
+    }
 
     // calculate page in place
     $scope.groupToPages = function () {
         $scope.pagedItems = [];
+        console.log("item length: " + $scope.filteredItems.length);
+        console.log("cur page : " + $scope.currentPage);
 
         for (var i = 0; i < $scope.filteredItems.length; i++) {
             if (i % $scope.itemsPerPage === 0) {

@@ -18,8 +18,9 @@ var lvdb_d3 = (function() {
     }
 
     return {
-        time_chart : function(data,div_id)
+        time_chart : function(data,div_id,cb_obj)
             {
+                var callbacks=cb_obj || {};
                 var total_width=800;
                 var total_height=400;
                 var margin = {top: 20, right: 100, bottom: 100, left: 100},
@@ -83,6 +84,11 @@ var lvdb_d3 = (function() {
                     .attr("width", x.rangeBand()/2)
                     .attr("y", function(d) { return y(d.count); })
                     .attr("height", function(d) { return height - y(d.count); })
+                    .on('click',function(d,i){
+                        var cb=callbacks['click'];
+                        //if(_.isFunction(cb)   cb(d,i);
+                        if(typeof(cb)=='function') cb(d,i);
+                    })
                     .append("svg:title")
                     .text(function(d) { return "[Hits:"+d.count+"]"; });
 
@@ -99,6 +105,11 @@ var lvdb_d3 = (function() {
                 .attr("y", function(d) { return y(d.bytes); })
                 .attr("height", function(d) { return height - y(d.bytes); })
                 .attr("transform", function(d) { return "translate("+x.rangeBand()/2+", 0)"; })
+                .on('click',function(d,i){
+                    var cb=callbacks['click'];
+                    //if(_.isFunction(cb)   cb(d,i);
+                    if(typeof(cb)=='function') cb(d,i);
+                })
                 .append("svg:title")
                 .text(function(d) { return "[Bytes:"+d.bytes+"]"; });
 
