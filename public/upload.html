@@ -142,7 +142,8 @@ $(function() {
 		  status_polling(JSON.parse(xhr.responseText)["jobName"],function(err,data){
 			  console.log("status return");
 			  // jump to analysis page
-			  $("a[href='analysis#']").attr('href', '/analysis?pId='+data['partition_id'])
+			  //$("a[href='analysis#']").attr('href', '/analysis?pId='+data['partition_id'])
+              $("a[href='analysis#']").attr('href', '/index.html#/partitions/'+data['partition_id']);
 			  $('div.nav_div').show();
 		  });
 	    }
